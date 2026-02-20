@@ -1,0 +1,21 @@
+package biletbank.runners;
+
+
+import io.cucumber.junit.Cucumber;
+import io.cucumber.junit.CucumberOptions;
+import org.junit.runner.RunWith;
+
+@RunWith(Cucumber.class)
+@CucumberOptions(
+        plugin = { "pretty",//Console'da scenariolar ile ilgili ayrintili bilgi almamizi saglar
+                "json:target/json-reports/cucumber.json",
+                "html:target/default-cucumber-reports.html",
+                "junit:target/xml-report/cucumber.xml"
+        },
+        features = "src/test/resources/features",
+        glue = "biletbank/stepDefs",
+        dryRun = false,
+        tags = "@positiveRegistration"
+)
+public class Runner {
+}
