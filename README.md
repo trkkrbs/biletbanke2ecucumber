@@ -29,7 +29,7 @@ src
 │       └── cucumber.properties # Cucumber konfigürasyonları
 ├── configuration.properties   # Ortam değişkenleri (URL, Browser vb.)
 └── pom.xml                    # Bağımlılık yönetimi (Maven)
-```text
+```
 
 
 
