@@ -32,9 +32,6 @@ src
 ```
 
 
-
-
-
 ## 🔍 Test Çıktıları ve Kanıtlar
 
 Projenin çalışma başarısını gösteren uygulama ekranı ve teknik rapor çıktıları aşağıdadır:
@@ -48,3 +45,12 @@ Otomasyonun formu eksiksiz doldurduğunu ve uygulamanın "İşlem Başarılı" y
 Senaryo adımlarının (Gherkin) çalışma sürelerini ve geçme durumlarını gösteren detaylı rapor çıktısı:
 
 ![Test Raporu](cucumberReport.png)
+
+---
+
+### 📝 Özetle Bu Proje:
+* **BDD Yaklaşımı:** Teknik olmayan paydaşların da anlayabileceği test senaryoları sunar.
+* **Sağlamlık:** Dinamik sayfa yapılarına uygun bekleme stratejileri (Explicit Wait) içerir.
+* **Bakım Kolaylığı:** POM yapısı sayesinde sayfa değişikliklerine hızlıca adapte edilebilir.
+
+**Testlerin başarıyla geçtiğini ve uygulamanın stabil çalıştığını doğrulamış bulunuyoruz.** ✅
