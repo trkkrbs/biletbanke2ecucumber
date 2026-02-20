@@ -29,3 +29,18 @@ src
 │       └── cucumber.properties # Cucumber konfigürasyonları
 ├── configuration.properties   # Ortam değişkenleri (URL, Browser vb.)
 └── pom.xml                    # Bağımlılık yönetimi (Maven)
+
+
+## 🔍 Test Çıktıları ve Kanıtlar
+
+Projenin çalışma başarısını gösteren uygulama ekranı ve teknik rapor çıktıları aşağıdadır:
+
+### 🖥️ Test Sayfası (Kayıt Onay Ekranı)
+Otomasyonun formu eksiksiz doldurduğunu ve uygulamanın "İşlem Başarılı" yanıtını verdiğini gösteren ekran görüntüsü:
+
+![Test Sayfası Onay Ekranı](acenteBiletBankRegistrationPage.png)
+
+### 📊 Test Raporu (Cucumber Report)
+Senaryo adımlarının (Gherkin) çalışma sürelerini ve geçme durumlarını gösteren detaylı rapor çıktısı:
+
+![Test Raporu Çıktısı](cucumberReport.png)
