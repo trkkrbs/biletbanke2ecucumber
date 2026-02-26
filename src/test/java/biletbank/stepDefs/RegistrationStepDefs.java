@@ -9,6 +9,8 @@ import io.cucumber.java.en.*;
 import org.junit.Assert;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.Keys;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.interactions.Actions;
 
 
 public class RegistrationStepDefs {
@@ -120,66 +122,97 @@ public class RegistrationStepDefs {
         ReusableMethods.scrollToElement(registrationPage.gonderBtn);
         ReusableMethods.clickWithJS(registrationPage.gonderBtn);
     }
+
     @And("Acente bilgilerini exceldeki {string} sayfasindaki verilerle doldurur")
     public void acenteBilgileriniExceldekiSayfasindakiVerilerleDoldurur(String sayfaIsmi) {
         String dosyaYolu = "src/test/resources/acenteTestData.xlsx";
         ExcelReader excelReader = new ExcelReader(dosyaYolu, sayfaIsmi);
         RegistrationPage registrationPage = new RegistrationPage();
 
-        // i=1 den başlıyoruz (Header/Başlık satırını atlamak için)
         for (int i = 1; i <= excelReader.rowCount(); i++) {
 
-            // --- 1. Bölüm: Acente Genel Bilgileri (Inputlar) ---
-            registrationPage.acenteAdiInput.sendKeys(excelReader.getCellData(i, 0));
-            registrationPage.mailInput.sendKeys(excelReader.getCellData(i, 1));
-            registrationPage.sabitTelInput.sendKeys(excelReader.getCellData(i, 2));
-            registrationPage.cepTelInput.sendKeys(excelReader.getCellData(i, 3));
-            registrationPage.faxNoInput.sendKeys(excelReader.getCellData(i, 4));
-            registrationPage.belgeNoInput.sendKeys(excelReader.getCellData(i, 5));
+            // --- 1. Bölüm: Acente Genel Bilgileri ---
+            sendText(registrationPage.acenteAdiInput, excelReader.getCellData(i, 0));
+            sendText(registrationPage.mailInput, excelReader.getCellData(i, 1));
+            sendText(registrationPage.sabitTelInput, formatExcelNumber(excelReader.getCellData(i, 2)));
+            sendText(registrationPage.cepTelInput, formatExcelNumber(excelReader.getCellData(i, 3)));
+            sendText(registrationPage.faxNoInput, formatExcelNumber(excelReader.getCellData(i, 4)));
+            sendText(registrationPage.belgeNoInput, formatExcelNumber(excelReader.getCellData(i, 5)));
 
-            // --- 2. Bölüm: Dropdownlar (Senin Reusable Metodun ile) ---
+            // --- 2. Bölüm: Dropdownlar ---
             ReusableMethods.selectByVisibleText(registrationPage.acenteSinifiDropdown, excelReader.getCellData(i, 6));
             ReusableMethods.selectByVisibleText(registrationPage.ulkeDropdown, excelReader.getCellData(i, 7));
             ReusableMethods.selectByVisibleText(registrationPage.sehirDropdown, excelReader.getCellData(i, 8));
-
-            // İlçe dropdown'ının dolması için kısa bir bekleme (ReusableMethods.waitFor kullanıldı)
             ReusableMethods.waitFor(1);
             ReusableMethods.selectByVisibleText(registrationPage.ilceDropdown, excelReader.getCellData(i, 9));
 
-            // --- 3. Bölüm: Adres Bilgileri ve Yol Tarifi (Scroll ile) ---
-            registrationPage.semtInput.sendKeys(excelReader.getCellData(i, 10));
-            registrationPage.caddeInput.sendKeys(excelReader.getCellData(i, 11));
-            registrationPage.adresDetayiInput.sendKeys(excelReader.getCellData(i, 12));
+            // --- 3. Bölüm: Adres Bilgileri ve Yol Tarifi ---
+            sendText(registrationPage.semtInput, excelReader.getCellData(i, 10));
+            sendText(registrationPage.caddeInput, excelReader.getCellData(i, 11));
+            sendText(registrationPage.adresDetayiInput, excelReader.getCellData(i, 12));
 
-
-// 2. Driver'ı Yol Tarifi'ne götür (Scroll)
+            // YOL TARİFİ ÇÖZÜMÜ: Standart sendKeys yerine Actions kullanarak odağı zorluyoruz
             ReusableMethods.scrollToElement(registrationPage.yolTarifiInput);
-            ReusableMethods.waitFor(1); // Sayfanın durulması için kısa bir es
+            ReusableMethods.clickWithJS(registrationPage.yolTarifiInput); // Kutuyu JS ile aktifleştir
+            // Metodun başında veya döngünün başında bir kez tanımla
+            Actions actions = new Actions(Driver.get());
 
-// 3. JAVASCRIPT ile odağı zorla Yol Tarifi div'inin içine, yani input'a taşı
-// Bu satır activeElement() karmaşasını ve kaymayı bitirir
-            ((JavascriptExecutor) Driver.get()).executeScript("arguments[0].querySelector('input').focus();", registrationPage.yolTarifiInput);
+            // Sonra istediğin yerde sadece ismini (actions) kullanarak devam et
+            actions.moveToElement(registrationPage.yolTarifiInput)
+                    .click()
+                    .sendKeys(excelReader.getCellData(i, 13))
+                    .sendKeys(Keys.TAB)
+                    .perform();
 
-// 4. Şimdi veriyi gönder (Odak artık içerideki input'ta)
-            Driver.get().switchTo().activeElement().sendKeys(excelReader.getCellData(i, 13));
+            // Acente Faaliyet Alanları
+            if (excelReader.getCellData(i, 14).equalsIgnoreCase("Uçak")) {
+                if (!registrationPage.ucakCheckbox.isSelected()) {
+                    ReusableMethods.clickWithJS(registrationPage.ucakCheckbox);
+                }
+            }
 
             // --- 4. Bölüm: Fatura ve Banka Bilgileri ---
-            registrationPage.faturaUnvaniInput.sendKeys(excelReader.getCellData(i, 14));
-            registrationPage.vergiDairesiInput.sendKeys(excelReader.getCellData(i, 15));
-            registrationPage.vergiNoInput.sendKeys(excelReader.getCellData(i, 16));
-            registrationPage.faturaAdresiInput.sendKeys(excelReader.getCellData(i, 17));
-            registrationPage.bankaIsmiInput.sendKeys(excelReader.getCellData(i, 18));
-            registrationPage.faturaSehriInput.sendKeys(excelReader.getCellData(i, 19));
-            registrationPage.ibanInput.sendKeys(excelReader.getCellData(i, 20));
+            sendText(registrationPage.faturaUnvaniInput, excelReader.getCellData(i, 15));
+            sendText(registrationPage.vergiDairesiInput, excelReader.getCellData(i, 16));
+
+            // Vergi No (1.11E10 hatasını BigDecimal metodu ile burada çözüyoruz)
+            sendText(registrationPage.vergiNoInput, formatExcelNumber(excelReader.getCellData(i, 17)));
+
+            sendText(registrationPage.faturaAdresiInput, excelReader.getCellData(i, 18));
+            sendText(registrationPage.bankaIsmiInput, excelReader.getCellData(i, 19));
+            sendText(registrationPage.faturaSehriInput, excelReader.getCellData(i, 20));
+            sendText(registrationPage.ibanInput, formatExcelNumber(excelReader.getCellData(i, 21)));
 
             // --- 5. Bölüm: Yetkili ve Giriş Bilgileri ---
-            registrationPage.yetkiliAdSoyadInput.sendKeys(excelReader.getCellData(i, 21));
-            registrationPage.yetkiliCepInput.sendKeys(excelReader.getCellData(i, 22));
-            registrationPage.yetkiliMailInput.sendKeys(excelReader.getCellData(i, 23));
-            registrationPage.kullaniciAdiInput.sendKeys(excelReader.getCellData(i, 24));
-            registrationPage.kullaniciMailInput.sendKeys(excelReader.getCellData(i, 25));
-            registrationPage.sifreInput.sendKeys(excelReader.getCellData(i, 26));
+            sendText(registrationPage.yetkiliAdSoyadInput, excelReader.getCellData(i, 22));
+            sendText(registrationPage.yetkiliCepInput, formatExcelNumber(excelReader.getCellData(i, 23)));
+            sendText(registrationPage.yetkiliMailInput, excelReader.getCellData(i, 24));
+            sendText(registrationPage.kullaniciAdiInput, excelReader.getCellData(i, 25));
+            sendText(registrationPage.kullaniciMailInput, excelReader.getCellData(i, 26));
+            sendText(registrationPage.sifreInput, excelReader.getCellData(i, 27));
         }
+    }
+    // --- YARDIMCI METOTLAR ---
+
+    private void sendText(org.openqa.selenium.WebElement element, String text) {
+        if (text == null || text.isEmpty()) return;
+        ReusableMethods.waitForVisibility(element, 10);
+        ReusableMethods.scrollToElement(element);
+        element.clear();
+        element.sendKeys(text);
+        ReusableMethods.waitFor(1);
+    }
+
+    private String formatExcelNumber(String value) {
+        if (value == null || value.isEmpty()) return "";
+        try {
+            if (value.toLowerCase().contains("e")) {
+                return new java.math.BigDecimal(value).toPlainString();
+            }
+        } catch (Exception e) {
+            return value.replaceAll("[^0-9]", "");
+        }
+        return value;
     }
 
     @Then("Kayit isleminin basariyla tamamlandigini dogrular")
